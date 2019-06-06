@@ -11,6 +11,20 @@ def pipeline(image):
     # undistort image     
     undistorted_image = cv2.undistort(image, mtx, dist, None, mtx)
 
+    # region
+    # 7. define a region of interest
+    ysize = 1200
+    xsize = 720
+    left_bottom = [0, ysize]
+    right_bottom = [xsize, ysize]
+    apex_d = 30
+    apex_1 = [72 / 2 + apex_d, ysize * 0.59]
+    apex_2 = [xsize / 2 - apex_d, ysize * 0.59]
+
+    # 8. select region - trapezoid
+    region = region_of_interest(undistorted_image, np.array([[[left_bottom, right_bottom, apex_1, apex_2]]], 'int32'))
+
+
     # create "bird view"     
     transformed_image = transform_image(undistorted_image, M1)
     # filter yellow and white colors     

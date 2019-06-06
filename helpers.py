@@ -78,19 +78,34 @@ def region_of_interest(img, vertices):
 # function for calculating transform matrix for a bird view
 def calculate_transform_matrix(forward=True):
     # manually defined points
+    # src = np.float32([
+    #     [596, 450],
+    #     [685, 450],
+    #     [1020, 662],
+    #     [295, 662]
+    # ])
+    #
+    # dst = np.float32([
+    #     [200, 50],
+    #     [1024, 50],
+    #     [1024, 720],
+    #     [200, 720]
+    # ])
+
     src = np.float32([
-        [596, 450],
-        [685, 450],
-        [1020, 662],
-        [295, 662]
+        [200, 720],
+        [608, 440],
+        [675, 440],
+        [1100, 720]
     ])
 
     dst = np.float32([
-        [200, 50],
-        [1024, 50],
-        [1024, 720],
-        [200, 720]
+        [200, 720],
+        [200, 0],
+        [1100, 0],
+        [1100, 720]
     ])
+
     if forward:
         return cv2.getPerspectiveTransform(src, dst)
 
@@ -128,7 +143,7 @@ def find_lane_pixels(binary_warped):
 
     # HYPERPARAMETERS
     # Choose the number of sliding windows
-    nwindows = 9
+    nwindows = 20
     # Set the width of the windows +/- margin
     margin = 100
     # Set minimum number of pixels found to recenter window
