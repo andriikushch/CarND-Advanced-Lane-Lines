@@ -46,8 +46,8 @@ def filter_line_colors(img):
     white_mask = cv2.inRange(img, lower_white, upper_white)
 
     # set yellow color boundaries, values are estimated experimentaly
-    lower_yellow = np.array([70, 80, 180])
-    upper_yellow = np.array([255, 255, 255])
+    lower_yellow = np.array([50, 50, 50])
+    upper_yellow = np.array([110, 255, 255])
 
     # threshold the HSV image to get only yellow colors
     yellow_mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
@@ -92,18 +92,32 @@ def calculate_transform_matrix(forward=True):
     #     [200, 720]
     # ])
 
+    # src = np.float32([
+    #     [200, 720],
+    #     [608, 440],
+    #     [675, 440],
+    #     [1100, 720]
+    # ])
+    #
+    # dst = np.float32([
+    #     [200, 720],
+    #     [200, 0],
+    #     [1100, 0],
+    #     [1100, 720]
+    # ])
+
     src = np.float32([
-        [200, 720],
-        [608, 440],
-        [675, 440],
-        [1100, 720]
+        [581, 477],
+        [699, 477],
+        [896, 675],
+        [384, 675]
     ])
 
     dst = np.float32([
-        [200, 720],
-        [200, 0],
-        [1100, 0],
-        [1100, 720]
+        [384, 0],
+        [896, 0],
+        [896, 720],
+        [384, 720]
     ])
 
     if forward:
