@@ -90,7 +90,3 @@ for file_name in calibration_image_list:
 
 # calibrate the camera
 ret, mtx, dist, rvecs, tvecs = cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
-
-
-def get_mtx():
-    return mtx
