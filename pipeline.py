@@ -4,13 +4,14 @@ from calibration import *
 from helpers import *
 from line import *
 
+f = open('data.csv', 'w')
+
 left_line_object = Line()
 right_line_object = Line()
 
 previous_out_image = None
 
 def pipeline(image):
-
     # to track which approach was used to detect the lines
     found_by = ""
 
@@ -79,28 +80,29 @@ def pipeline(image):
         left_line_object.detected = False
         right_line_object.detected = False
 
+    if out_image is not None:
+        previous_out_image = out_image
+    else:
+        out_image = previous_out_image
 
     # if nothing was found try to build it from the last matching
     if left_line_object.detected == False or right_line_object.detected == False:
         found_by = "not_found use previous data"
     else:
+
         # fit poly
         left_line_object.detected = True
-        left_line_object.ally = ploty
-        left_line_object.current_fit = left_poly
-        left_line_object.ploty = ploty
+
+        if abs(left_poly[0]) < 0.0002 and abs(left_poly[1]) < 0.6 and abs(left_poly[2]) < 1000:
+            left_line_object.ally = ploty
+            left_line_object.current_fit = left_poly
 
         right_line_object.detected = True
+
         right_line_object.ally = ploty
         right_line_object.current_fit = right_poly
-        right_line_object.ploty = ploty
 
-
-
-    if out_image is not None:
-        previous_out_image = out_image
-    else:
-        out_image = previous_out_image
+    f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(left_line_object.current_fit[0], left_line_object.current_fit[1], left_line_object.current_fit[2]))
 
     # for debug purpose
     original_out = np.copy(out_image)
