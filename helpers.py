@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
+
 # display image map
 def plot_images_map(images, img_size=(20, 15), columns=5):
     plt.figure(figsize=img_size)
@@ -243,7 +244,6 @@ def fit_polynomial(binary_warped):
 
 
 def fit_poly(img_shape, leftx, lefty, rightx, righty):
-
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     # Generate x and y values for plotting
@@ -291,5 +291,34 @@ def search_around_poly(binary_warped, left_fit, right_fit):
     out_img[nonzeroy[left_lane_inds], nonzerox[left_lane_inds]] = [255, 0, 0]
     out_img[nonzeroy[right_lane_inds], nonzerox[right_lane_inds]] = [0, 0, 255]
 
-
     return left_fitx, right_fitx, out_img, left_fit, right_fit
+
+
+def channel_threshold(channel, min=120, max=255):
+    binary = np.zeros_like(channel)
+    binary[(channel > min) & (channel <= max)] = 1
+
+    return binary
+
+
+def erode_and_dilate(binary):
+    kernel = np.ones((5, 5), np.uint8)
+    erosion = cv2.erode(binary, kernel, iterations=2)
+
+    kernel = np.ones((12, 12), np.uint8)
+    dilation = cv2.dilate(erosion, kernel, iterations=3)
+    return dilation
+
+
+def binary_output_sobel(img):
+    gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+    kernel = np.ones((3, 3), np.float32) / 25
+    dst = cv2.filter2D(gray, -1, kernel)
+    sobelx = cv2.Sobel(dst, cv2.CV_64F, 1, 0, ksize=5)
+    abs_sobel_x = np.absolute(sobelx)
+
+    scaled_sobel = np.uint8(255 * abs_sobel_x / np.max(abs_sobel_x))
+    binary_output_sobel = np.zeros_like(scaled_sobel)
+    binary_output_sobel[(scaled_sobel >= 25) & (scaled_sobel <= 170)] = 1
+
+    return  binary_output_sobel
