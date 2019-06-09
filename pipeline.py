@@ -47,10 +47,7 @@ def pipeline(image):
             _lx, _rx, out_image, left_poly, right_poly = search_around_poly(binary, left_line_object.current_fit, right_line_object.current_fit)
 
 
-            left_line_object.allx = _lx
-            right_line_object.allx = _rx
-
-            if not len(left_line_object.allx) > 0 or not len(right_line_object.allx) > 0:
+            if not len(_lx) > 0 or not len(_rx) > 0:
                 left_line_object.detected = False
                 right_line_object.detected = False
             else:
@@ -66,10 +63,7 @@ def pipeline(image):
         if left_line_object.detected == False or right_line_object.detected == False:
             _lx, _rx, out_image, left_poly, right_poly = fit_polynomial(binary)
 
-            left_line_object.allx = _lx
-            right_line_object.allx = _rx
-
-            if not len(left_line_object.allx) > 0 or not len(right_line_object.allx) > 0:
+            if not len(_lx) > 0 or not len(_rx) > 0:
                 left_line_object.detected = False
                 right_line_object.detected = False
             else:
@@ -93,16 +87,23 @@ def pipeline(image):
         # fit poly
         left_line_object.detected = True
 
-        if abs(left_poly[0]) < 0.0002 and abs(left_poly[1]) < 0.6 and abs(left_poly[2]) < 1000:
+        if abs(left_poly[0]) < 0.0005 and abs(left_poly[1]) < 0.6 and abs(left_poly[2]) < 1200:
             left_line_object.ally = ploty
             left_line_object.current_fit = left_poly
+            left_line_object.allx = _lx
 
         right_line_object.detected = True
 
-        right_line_object.ally = ploty
-        right_line_object.current_fit = right_poly
+        if abs(right_poly[0]) < 0.0005 and abs(right_poly[1]) < 0.6 and abs(right_poly[2]) < 1200:
+            right_line_object.ally = ploty
+            right_line_object.current_fit = right_poly
+            right_line_object.allx = _rx
 
-    f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(left_line_object.current_fit[0], left_line_object.current_fit[1], left_line_object.current_fit[2]))
+
+    try:
+        f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(right_poly[0], right_poly[1], right_poly[2]))
+    except:
+        f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(0, 0, 0))
 
     # for debug purpose
     original_out = np.copy(out_image)
