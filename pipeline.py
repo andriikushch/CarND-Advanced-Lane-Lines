@@ -105,7 +105,6 @@ def pipeline(image):
             text = "FAKE LEFT"
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img, text, (10, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
-            print(left_poly)
 
         right_line_object.detected = True
 
@@ -117,7 +116,6 @@ def pipeline(image):
             text = "FAKE RIGHT"
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img, text, (100, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
-            print(right_poly)
 
     try:
         f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(right_poly[0], right_poly[1], right_poly[2]))

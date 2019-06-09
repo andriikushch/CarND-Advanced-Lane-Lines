@@ -319,6 +319,6 @@ def binary_output_sobel(img):
 
     scaled_sobel = np.uint8(255 * abs_sobel_x / np.max(abs_sobel_x))
     binary_output_sobel = np.zeros_like(scaled_sobel)
-    binary_output_sobel[(scaled_sobel >= 25) & (scaled_sobel <= 170)] = 1
+    binary_output_sobel[(scaled_sobel >= 45) & (scaled_sobel <= 120)] = 1
 
     return  binary_output_sobel
