@@ -7,8 +7,19 @@ from line import *
 left_line_object = Line()
 right_line_object = Line()
 
+previous_out_image = None
+
 def pipeline(image):
-    # copy original image     
+
+    # to track which approach was used to detect the lines
+    found_by = ""
+
+    # processed bird view
+    out_image = None
+    # previous processed bird view
+    global previous_out_image
+
+    # copy original image
     img = np.copy(image)
     # undistort image     
     undistorted_image = cv2.undistort(image, mtx, dist, None, mtx)
@@ -23,13 +34,57 @@ def pipeline(image):
     binary = np.zeros_like(gray)
     binary[gray > 0] = 1
 
+
+    left_poly = None
+    right_poly = None
+
+    ploty = np.linspace(0, img.shape[0] - 1, img.shape[0])
+
     try:
-        # fit poly     
-        left_line_object.allx, right_line_object.allx, out_image, left_poly, right_poly = fit_polynomial(binary)
+        # try to find based lines based on the previous iteration
+        if left_line_object.detected and right_line_object.detected:
+            _lx, _rx, out_image, left_poly, right_poly = search_around_poly(binary, left_line_object.current_fit, right_line_object.current_fit)
 
-        # draw lines
-        ploty = np.linspace(0, img.shape[0] - 1, img.shape[0])
 
+            left_line_object.allx = _lx
+            right_line_object.allx = _rx
+
+            if not len(left_line_object.allx) > 0 or not len(right_line_object.allx) > 0:
+                left_line_object.detected = False
+                right_line_object.detected = False
+            else:
+                found_by = "search_around_poly"
+                left_line_object.detected = True
+                right_line_object.detected = True
+    except:
+        left_line_object.detected = False
+        right_line_object.detected = False
+
+
+    try:
+        if left_line_object.detected == False or right_line_object.detected == False:
+            _lx, _rx, out_image, left_poly, right_poly = fit_polynomial(binary)
+
+            left_line_object.allx = _lx
+            right_line_object.allx = _rx
+
+            if not len(left_line_object.allx) > 0 or not len(right_line_object.allx) > 0:
+                left_line_object.detected = False
+                right_line_object.detected = False
+            else:
+                found_by = "fit_polynomial"
+                left_line_object.detected = True
+                right_line_object.detected = True
+    except :
+        left_line_object.detected = False
+        right_line_object.detected = False
+
+
+    # if nothing was found try to build it from the last matching
+    if left_line_object.detected == False or right_line_object.detected == False:
+        found_by = "not_found use previous data"
+    else:
+        # fit poly
         left_line_object.detected = True
         left_line_object.ally = ploty
         left_line_object.current_fit = left_poly
@@ -40,26 +95,45 @@ def pipeline(image):
         right_line_object.current_fit = right_poly
         right_line_object.ploty = ploty
 
-    except TypeError as e:
-
-        left_line_object.detected = False
-        right_line_object.detected = False
-
-        return image, image, image
 
 
-    # for debug purpose     
+    if out_image is not None:
+        previous_out_image = out_image
+    else:
+        out_image = previous_out_image
+
+    # for debug purpose
     original_out = np.copy(out_image)
 
     # calcualte car position
-    f_l = np.poly1d(left_poly)
-    f_r = np.poly1d(right_poly)
-    middle = img.shape[1] / 2
+    text = "CAR DISTANCE TO LEFT LINE : {:10.2f} CAR DISTANCE TO RIGHT LINE : {:10.2f}".format(
+        left_line_object.measure_distance_real(out_image),
+        right_line_object.measure_curvature_real(out_image)
+    )
 
-    text = "CAR DISTANCE TO LEFT LINE : {0} CAR DISTANCE TO RIGHT LINE : {1}".format(middle - f_l(img.shape[1]),
-                                                                                     f_r(img.shape[1]) - middle)
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(img, text, (10, 40), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
+
+    text = "Found by {0}".format(found_by)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img, text, (10, 700), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+
+
+    # left curv
+    text = "Left curv: {:10.2f}".format(left_line_object.measure_curvature_real(out_image))
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img, text, (10, 60), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+
+    # right curv
+    text = "Right curv: {:10.2f}".format(right_line_object.measure_curvature_real(out_image))
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img, text, (660, 60), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+
+    # poly params
+    text = "Poly params: {:10.4f},{:10.4f},{:10.4f} |||| {:10.4f}, {:10.4f}, {:10.4f}".format(left_line_object.current_fit[0], left_line_object.current_fit[1], left_line_object.current_fit[2], right_line_object.current_fit[0],right_line_object.current_fit[1], right_line_object.current_fit[2])
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img, text, (10, 630), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+
 
     # collect points for lines and poly  
     left_line_points = left_line_object.get_line_points()
@@ -67,8 +141,9 @@ def pipeline(image):
 
     poly_points = np.concatenate((np.int32(left_line_points)[::-1], np.int32(right_line_points)))
 
-    cv2.polylines(out_image, np.int32([left_line_points]), False, (255, 150, 0), 140)
-    cv2.polylines(out_image, np.int32([right_line_points]), False, (0, 150, 255), 140)
+    left_line_object.draw_line(out_image)
+    right_line_object.draw_line(out_image)
+
     cv2.fillPoly(out_image, np.int32([poly_points]), (0, 255, 0))
 
     # convert "bird view" to normal
