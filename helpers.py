@@ -56,23 +56,23 @@ def filter_line_colors(img):
     return cv2.bitwise_and(img, img, mask=white_mask | yellow_mask)
 
 
-def region_of_interest(img, vertices):
-    # defining a blank mask to start with
-    mask = np.zeros_like(img)
-
-    # defining a 3 channel or 1 channel color to fill the mask with depending on the input image
-    if len(img.shape) > 2:
-        channel_count = img.shape[2]  # i.e. 3 or 4 depending on your image
-        ignore_mask_color = (255,) * channel_count
-    else:
-        ignore_mask_color = 255
-
-    # filling pixels inside the polygon defined by "vertices" with the fill color
-    cv2.fillPoly(mask, vertices, ignore_mask_color)
-
-    # returning the image only where mask pixels are nonzero
-    masked_image = cv2.bitwise_and(img, mask)
-    return masked_image
+# def region_of_interest(img, vertices):
+#     # defining a blank mask to start with
+#     mask = np.zeros_like(img)
+#
+#     # defining a 3 channel or 1 channel color to fill the mask with depending on the input image
+#     if len(img.shape) > 2:
+#         channel_count = img.shape[2]  # i.e. 3 or 4 depending on your image
+#         ignore_mask_color = (255,) * channel_count
+#     else:
+#         ignore_mask_color = 255
+#
+#     # filling pixels inside the polygon defined by "vertices" with the fill color
+#     cv2.fillPoly(mask, vertices, ignore_mask_color)
+#
+#     # returning the image only where mask pixels are nonzero
+#     masked_image = cv2.bitwise_and(img, mask)
+#     return masked_image
 
 
 # function for calculating transform matrix for a bird view
@@ -251,20 +251,16 @@ def fit_polynomial(binary_warped):
     out_img[lefty, leftx] = [255, 0, 0]
     out_img[righty, rightx] = [0, 0, 255]
 
-    # Plots the left and right polynomials on the lane lines
-    #     plt.plot(left_fitx, ploty, color='orange')
-    #     plt.plot(right_fitx, ploty, color='gray')
-
     return left_fitx, right_fitx, out_img, left_fit, right_fit
 
 
 def fit_poly(img_shape, leftx, lefty, rightx, righty):
-    ### TO-DO: Fit a second order polynomial to each with np.polyfit() ###
+
     left_fit = np.polyfit(lefty, leftx, 2)
     right_fit = np.polyfit(righty, rightx, 2)
     # Generate x and y values for plotting
     ploty = np.linspace(0, img_shape[0] - 1, img_shape[0])
-    ### TO-DO: Calc both polynomials using ploty, left_fit and right_fit ###
+
     left_fitx = left_fit[0] * ploty ** 2 + left_fit[1] * ploty + left_fit[2]
     right_fitx = right_fit[0] * ploty ** 2 + right_fit[1] * ploty + right_fit[2]
 
@@ -273,9 +269,7 @@ def fit_poly(img_shape, leftx, lefty, rightx, righty):
 
 # try to reuse data from previous step
 def search_around_poly(binary_warped, left_fit, right_fit):
-    # HYPERPARAMETER
-    # Choose the width of the margin around the previous polynomial to search
-    # The quiz grader expects 100 here, but feel free to tune on your own!
+    # margin around the previous polynomial to search
     margin = 100
 
     # Grab activated pixels
@@ -283,10 +277,6 @@ def search_around_poly(binary_warped, left_fit, right_fit):
     nonzeroy = np.array(nonzero[0])
     nonzerox = np.array(nonzero[1])
 
-    ### TO-DO: Set the area of search based on activated x-values ###
-    ### within the +/- margin of our polynomial function ###
-    ### Hint: consider the window areas for the similarly named variables ###
-    ### in the previous quiz, but change the windows to our new search area ###
     left_lane_inds = ((nonzerox > (left_fit[0] * (nonzeroy ** 2) + left_fit[1] * nonzeroy +
                                    left_fit[2] - margin)) & (nonzerox < (left_fit[0] * (nonzeroy ** 2) +
                                                                          left_fit[1] * nonzeroy + left_fit[

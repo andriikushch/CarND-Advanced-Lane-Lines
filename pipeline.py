@@ -2,15 +2,16 @@ import numpy as np
 import cv2
 from calibration import *
 from helpers import *
+from line import *
 
+left_line_object = Line()
+right_line_object = Line()
 
 def pipeline(image):
     # copy original image     
     img = np.copy(image)
-
     # undistort image     
     undistorted_image = cv2.undistort(image, mtx, dist, None, mtx)
-
     # create "bird view"     
     transformed_image = transform_image(undistorted_image, M1)
     # filter yellow and white colors     
@@ -24,9 +25,28 @@ def pipeline(image):
 
     try:
         # fit poly     
-        left_line, right_line, out_image, left_poly, right_poly = fit_polynomial(binary)
+        left_line_object.allx, right_line_object.allx, out_image, left_poly, right_poly = fit_polynomial(binary)
+
+        # draw lines
+        ploty = np.linspace(0, img.shape[0] - 1, img.shape[0])
+
+        left_line_object.detected = True
+        left_line_object.ally = ploty
+        left_line_object.current_fit = left_poly
+        left_line_object.ploty = ploty
+
+        right_line_object.detected = True
+        right_line_object.ally = ploty
+        right_line_object.current_fit = right_poly
+        right_line_object.ploty = ploty
+
     except TypeError as e:
+
+        left_line_object.detected = False
+        right_line_object.detected = False
+
         return image, image, image
+
 
     # for debug purpose     
     original_out = np.copy(out_image)
@@ -35,17 +55,15 @@ def pipeline(image):
     f_l = np.poly1d(left_poly)
     f_r = np.poly1d(right_poly)
     middle = img.shape[1] / 2
+
     text = "CAR DISTANCE TO LEFT LINE : {0} CAR DISTANCE TO RIGHT LINE : {1}".format(middle - f_l(img.shape[1]),
                                                                                      f_r(img.shape[1]) - middle)
     font = cv2.FONT_HERSHEY_SIMPLEX
-    cv2.putText(img, text, (10, 30), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
-
-    # draw lines
-    ploty = np.linspace(0, img.shape[0] - 1, img.shape[0])
+    cv2.putText(img, text, (10, 40), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
 
     # collect points for lines and poly  
-    left_line_points = np.dstack((left_line, ploty))[0]
-    right_line_points = np.dstack((right_line, ploty))[0]
+    left_line_points = left_line_object.get_line_points()
+    right_line_points = right_line_object.get_line_points()
 
     poly_points = np.concatenate((np.int32(left_line_points)[::-1], np.int32(right_line_points)))
 
