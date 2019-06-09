@@ -302,11 +302,11 @@ def channel_threshold(channel, min=120, max=255):
 
 
 def erode_and_dilate(binary):
-    kernel = np.ones((5, 5), np.uint8)
-    erosion = cv2.erode(binary, kernel, iterations=2)
+    kernel = np.ones((3, 3), np.uint8)
+    erosion = cv2.erode(binary, kernel, iterations=1)
 
     kernel = np.ones((12, 12), np.uint8)
-    dilation = cv2.dilate(erosion, kernel, iterations=3)
+    dilation = cv2.dilate(erosion, kernel, iterations=2)
     return dilation
 
 

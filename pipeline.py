@@ -97,7 +97,7 @@ def pipeline(image):
         left_line_object.detected = True
 
         # remove suspicious poly, when detection works bad
-        if abs(left_poly[0]) < 0.0005 and abs(left_poly[1]) < 0.6 and abs(left_poly[2]) < 1200:
+        if abs(left_poly[0]) < 0.0007 and abs(left_poly[1]) < 0.8 and abs(left_poly[2]) < 1400:
             left_line_object.ally = ploty
             left_line_object.current_fit = left_poly
             left_line_object.allx = _lx
@@ -105,10 +105,11 @@ def pipeline(image):
             text = "FAKE LEFT"
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img, text, (10, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
+            print(left_poly)
 
         right_line_object.detected = True
 
-        if abs(right_poly[0]) < 0.0005 and abs(right_poly[1]) < 0.6 and abs(right_poly[2]) < 1200:
+        if abs(right_poly[0]) < 0.0007 and abs(right_poly[1]) < 0.8 and abs(right_poly[2]) < 1400:
             right_line_object.ally = ploty
             right_line_object.current_fit = right_poly
             right_line_object.allx = _rx
@@ -116,6 +117,7 @@ def pipeline(image):
             text = "FAKE RIGHT"
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(img, text, (100, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
+            print(right_poly)
 
     try:
         f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(right_poly[0], right_poly[1], right_poly[2]))
@@ -155,6 +157,7 @@ def draw_and_print_on_image(found_by, img, out_image):
         right_line_object.current_fit[0], right_line_object.current_fit[1], right_line_object.current_fit[2])
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(img, text, (10, 630), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
+
     # collect points for lines and poly
     left_line_points = left_line_object.get_line_points()
     right_line_points = right_line_object.get_line_points()

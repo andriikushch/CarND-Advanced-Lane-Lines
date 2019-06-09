@@ -30,7 +30,7 @@ class Line:
         return points
 
     def draw_line(self, img):
-        cv2.polylines(img, np.int32([self.get_line_points()]), False, (255, 150, 0), 140)
+        cv2.polylines(img, np.int32([self.get_line_points()]), False, (255, 150, 0), 1)
 
 
     def measure_curvature_pixels(self, image):
