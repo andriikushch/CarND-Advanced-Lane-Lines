@@ -255,7 +255,7 @@ I found this pipeline easy to understand and enough robust for the good conditio
 
 Cases when it will fail, for instance:
 
-- Not stable lighting condition: when a car is driving on the highway and then in the shade under the bridge or in the forest when the sun is blinking because of the trees.
+- Dynamic lighting condition.
 - Yellow or white things, not lines, are on the street, big enough that filter is not filtering them.
 - When road can't be approximated with a polynomial of 2 degrees (very curved road).
 - When the yellow or white car will drive close enough.
