@@ -90,7 +90,7 @@ class LineDetector:
         Calculates transform matrix for a bird view
         '''
         # manually defined points
-        src = np.float32([[580, 460], [205, 720], [1110, 720], [703, 460]])
+        src = np.float32([[580, 460], [204, 720], [1110, 720], [702, 460]])
         dst = np.float32([[320, 0], [320, 720], [960, 720], [960, 0]])
 
         if forward:
