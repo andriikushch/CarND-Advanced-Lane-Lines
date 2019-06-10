@@ -197,6 +197,36 @@ Implemented in `LineDetector.search_around_poly`.
 
 Distance and curvature calculation is in `line.py` class Line, methods `measure_curvature_real` and `measure_distance_real` 
 
+```python
+def measure_curvature_real(self, image):
+    '''
+    Calculates the curvature of polynomial functions in meters.
+    '''
+    # Define conversions in x and y from pixels space to meters
+    ym_per_pix = 1 / 30  # meters per pixel in y dimension
+
+    # Define y-value where we want radius of curvature
+    # We'll choose the maximum y-value, corresponding to the bottom of the image
+    y_eval = image.shape[1]
+
+    # Calculation of R_curve (radius of curvature)
+    curverad = ((1 + (
+                2 * self.current_fit[0] * y_eval * ym_per_pix + self.current_fit[1]) ** 2) ** 1.5) / np.absolute(
+        2 * self.current_fit[0])
+
+    return curverad
+
+def measure_distance_real(self, image):
+    '''
+    Calculates distance to the line
+    '''
+    xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
+    f = np.poly1d(self.current_fit)
+    middle = image.shape[1] / 2
+
+    return abs(middle - f(image.shape[1])) * xm_per_pix
+```
+
 | Raw | Result |
 |---|---|
 | ![alt text][raw_image]  | ![alt text][result]  |
