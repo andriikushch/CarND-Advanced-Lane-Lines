@@ -114,7 +114,7 @@ One of the most important steps in the whole pipeline is creating a bird view. P
 In my case after trying different combinations, I choose the following:
 
 ```python
-src = np.float32([[580, 460], [205, 720], [1110, 720], [703, 460]])
+src = np.float32([[580, 460], [204, 720], [1110, 720], [703, 460]])
 dst = np.float32([[320, 0], [320, 720], [960, 720], [960, 0]])  
 ```
 
