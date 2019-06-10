@@ -98,7 +98,7 @@ And to remove noise apply sequentially `cv2.erode` and `cv2.dilate` functions.
 
 | Absolute Sobel X | Thresholded S channel | Erode and dilate |
 |---|---|---|
-| ![alt text][binary_output_sobel_x]  | ![alt text][binary_s]  | ![alt text][dilate]  |
+| ![alt text][binary_output_sobel_x]  | ![alt text][binary_s]  | ![alt text][dilation]  |
 
 #### 7. Mask transformed image
 
@@ -106,7 +106,7 @@ Here apply the mask from the previous step to the "bird view".
 
 | Bird view | Erode and dilate | Masked bird view |
 |---|---|---|
-| ![alt text][transformed_image]  | ![alt text][dilate]  | ![alt text][masked_transformed_image]  |
+| ![alt text][transformed_image]  | ![alt text][dilation]  | ![alt text][masked_transformed_image]  |
 
 
 #### 8. Using the color filter to find lines
