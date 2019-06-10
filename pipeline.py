@@ -120,9 +120,9 @@ class LineDetector:
         '''
 
         # calculate car position
-        text = "CAR DISTANCE TO LEFT LINE : {:10.2f} CAR DISTANCE TO RIGHT LINE : {:10.2f}".format(
+        text = "CAR DISTANCE TO LEFT LINE : {:10.2f} m CAR DISTANCE TO RIGHT LINE : {:10.2f} m".format(
             self.left_line_object.measure_distance_real(out_image),
-            self.right_line_object.measure_curvature_real(out_image)
+            self.right_line_object.measure_distance_real(out_image)
         )
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, text, (10, 40), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
