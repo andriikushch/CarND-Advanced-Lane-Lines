@@ -43,11 +43,61 @@ The goals/steps of this project are the following:
 
 The code for this step is in `calibration.py` file. Which defines global vars `ret, mtx, dist, rvecs, tvecs` as result of `cv2.calibrateCamera` function. Images for calibration are stored in `camera_cal` folder. 
 
-Some of the calibration images have a different amount of visible corners and calibration code takes it into account. In case if we will exclude those images, the calibration result is worth.
+Some of the calibration images have a different amount of visible corners and calibration code takes it into account. In case if we will exclude those images, the calibration result is worst.
 
 ### Pipeline (single images)
 
 The whole pipeline is defined within `pipeline.py` in the object called `LineDetector`.
+
+```python
+# 1. Copy the original image
+img = np.copy(_img)
+
+# 2. Undistort image
+undistorted_image = cv2.undistort(_img, mtx, dist, None, mtx)
+
+# 3. Create "bird view" from undistorted_image
+transformed_image = self.transform_image(undistorted_image, self.M1)
+
+# 4. Apply SobelX operator to "transformed_image"
+binary_output_sobel_x = self.binary_output_sobel(transformed_image)
+
+# 5. Take a S channel of transformed_image
+binary_s = self.channel_threshold(self.hls_select(transformed_image, 2))
+
+# 6. "Erode" and "Dilate" the logical or between s-channel and sobelX images
+dilation = self.erode_and_dilate(binary_s | binary_output_sobel_x)
+
+# 7. Mask transformed image
+masked_transformed_image = cv2.bitwise_and(transformed_image, transformed_image, mask=dilation)
+
+# 8. Filter yellow and white colors on masked transformed image
+filtered_image = self.filter_line_colors(masked_transformed_image)
+
+# 9. Create gray image to create binary image
+gray = cv2.cvtColor(filtered_image, cv2.COLOR_BGR2GRAY)
+
+# 10. Create binary image out of gray
+binary = np.zeros_like(gray)
+binary[gray > 0] = 1
+
+# try to find the lines, first with quick search if lines were already detected
+_lx, _rx, left_poly, out_image, right_poly = None, None, None, None, None,
+try:
+    _lx, _rx, left_poly, out_image, right_poly = self.try_to_find_points(binary, "search_around_poly",
+                                                                         self.search_around_poly)
+except:
+    self.left_line_object.detected = False
+    self.right_line_object.detected = False
+
+# long search if "search_around_poly" search fail
+try:
+    _lx, _rx, left_poly, out_image, right_poly = self.try_to_find_points(binary, "fit_polynomial",
+                                                                         self.fit_polynomial)
+except:
+    self.left_line_object.detected = False
+    self.right_line_object.detected = False
+```
 
 #### 1. Undistort image.
 
