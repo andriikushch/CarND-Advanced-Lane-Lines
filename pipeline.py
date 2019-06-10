@@ -4,21 +4,14 @@ from calibration import *
 from helpers import *
 from line import *
 
-f = open('data.csv', 'w')
-
-
 class LineDetector:
     def __init__(self):
         self.left_line_object = Line()
         self.right_line_object = Line()
-        self.previous_out_image = None
+        # to track which approach was used to detect the lines
+        self.found_by = ""
 
     def pipeline(self, _img):
-        # to track which approach was used to detect the lines
-        found_by = ""
-
-        # processed bird view
-        out_image = None
         # previous processed bird view
         global previous_out_image
 
@@ -62,7 +55,7 @@ class LineDetector:
                     self.left_line_object.detected = False
                     self.right_line_object.detected = False
                 else:
-                    found_by = "search_around_poly"
+                    self.found_by = "search_around_poly"
                     self.left_line_object.detected = True
                     self.right_line_object.detected = True
         except:
@@ -77,60 +70,32 @@ class LineDetector:
                     self.left_line_object.detected = False
                     self.right_line_object.detected = False
                 else:
-                    found_by = "fit_polynomial"
+                    self.found_by = "fit_polynomial"
                     self.left_line_object.detected = True
                     self.right_line_object.detected = True
         except:
             self.left_line_object.detected = False
             self.right_line_object.detected = False
 
-        if out_image is not None:
-            previous_out_image = out_image
-        else:
-            out_image = previous_out_image
 
-        # if nothing was found try to build it from the last matching
-        if self.left_line_object.detected == False or self.right_line_object.detected == False:
-            found_by = "not_found use previous data"
-        else:
+        self.left_line_object.detected = True
+        self.left_line_object.ally = ploty
+        self.left_line_object.current_fit = left_poly
+        self.left_line_object.allx = _lx
+        self.right_line_object.detected = True
+        self.right_line_object.ally = ploty
+        self.right_line_object.current_fit = right_poly
+        self.right_line_object.allx = _rx
 
-            # fit poly
-            self.left_line_object.detected = True
-
-            # remove suspicious poly, when detection works bad
-            # if abs(left_poly[0]) < 0.0007 and abs(left_poly[1]) < 0.8 and abs(left_poly[2]) < 1400:
-            self.left_line_object.ally = ploty
-            self.left_line_object.current_fit = left_poly
-            self.left_line_object.allx = _lx
-            # else:
-            #     text = "FAKE LEFT"
-            #     font = cv2.FONT_HERSHEY_SIMPLEX
-            #     cv2.putText(img, text, (10, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
-
-            self.right_line_object.detected = True
-
-            # if abs(right_poly[0]) < 0.0007 and abs(right_poly[1]) < 0.8 and abs(right_poly[2]) < 1400:
-            self.right_line_object.ally = ploty
-            self.right_line_object.current_fit = right_poly
-            self.right_line_object.allx = _rx
-            # else:
-            #     text = "FAKE RIGHT"
-            #     font = cv2.FONT_HERSHEY_SIMPLEX
-            #     cv2.putText(img, text, (100, 70), font, 0.7, (255, 0, 0), 2, cv2.LINE_AA)
-
-        try:
-            f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(right_poly[0], right_poly[1], right_poly[2]))
-        except:
-            f.write('{:10.5f}, {:10.5f}, {:10.5f},\n'.format(0, 0, 0))
 
         # for debug purpose
         original_out = np.copy(out_image)
 
-        result = self.draw_and_print_on_image(found_by, img, out_image)
+        result = self.draw_and_print_on_image(img, out_image)
 
         return result, transformed_image, original_out
 
-    def draw_and_print_on_image(self, found_by, img, out_image):
+    def draw_and_print_on_image(self, img, out_image):
         # calcualte car position
         text = "CAR DISTANCE TO LEFT LINE : {:10.2f} CAR DISTANCE TO RIGHT LINE : {:10.2f}".format(
             self.left_line_object.measure_distance_real(out_image),
@@ -138,7 +103,7 @@ class LineDetector:
         )
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, text, (10, 40), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
-        text = "Found by {0}".format(found_by)
+        text = "Found by {0}".format(self.found_by)
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, text, (10, 700), font, 0.6, (255, 255, 255), 2, cv2.LINE_AA)
         # left curv
