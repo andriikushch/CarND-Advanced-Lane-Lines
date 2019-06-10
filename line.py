@@ -45,11 +45,8 @@ class Line:
         '''
         Calculates the curvature of polynomial functions in meters.
         '''
-        # Define conversions in x and y from pixels space to meters
         ym_per_pix = 1 / 30  # meters per pixel in y dimension
 
-        # Define y-value where we want radius of curvature
-        # We'll choose the maximum y-value, corresponding to the bottom of the image
         y_eval = image.shape[1]
 
         # Calculation of R_curve (radius of curvature)
