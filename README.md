@@ -1,17 +1,13 @@
-## Writeup
-
----
-
 **Advanced Lane Finding Project**
 
-The goals / steps of this project are the following:
+The goals/steps of this project are the following:
 
 * Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
 * Apply a distortion correction to raw images.
 * Use color transforms, gradients, etc., to create a thresholded binary image.
 * Apply a perspective transform to rectify binary image ("birds-eye view").
 * Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
+* Determine the curvature of the lane and vehicle position with respect to the center.
 * Warp the detected lane boundaries back onto the original image.
 * Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
 
@@ -47,11 +43,11 @@ The goals / steps of this project are the following:
 
 The code for this step is in `calibration.py` file. Which defines global vars `ret, mtx, dist, rvecs, tvecs` as result of `cv2.calibrateCamera` function. Images for calibration are stored in `camera_cal` folder. 
 
-Some of calibration images has different amount of visible corners and calibration code takes it into account. In case if we will exlude those images, calibration result is worth.
+Some of the calibration images have a different amount of visible corners and calibration code takes it into account. In case if we will exclude those images, the calibration result is worth.
 
 ### Pipeline (single images)
 
-Whole pipeline are defined within `pipeline.py` in object called `LineDetector`.
+The whole pipeline is defined within `pipeline.py` in the object called `LineDetector`.
 
 #### 1. Undistort image.
 
@@ -63,7 +59,7 @@ At this step using camera calibration results and `cv2.undistort` function, we a
 
 #### 2. Create a "bird view"
 
-One of the most important steps in whole pipeline are creating the bird view. Parameters for the transformation can be found manually or calculated. 
+One of the most important steps in the whole pipeline is creating a bird view. Parameters for the transformation can be found manually or calculated. 
 In my case after trying different combinations, I choose the following:
 
 ```python
@@ -75,9 +71,9 @@ dst = np.float32([[320, 0], [320, 720], [960, 720], [960, 0]])
 |---|---|
 | ![alt text][undistorted_image]  | ![alt text][transformed_image]  |
 
-#### 3. Apply Sobel operator to "bird view" in x-direction
+#### 3. Apply Sobel operator to "bird view" in the x-direction
 
-Current step is about apply Sobel operator on "bird view", take absolute value of result and use the threshold (found manually) to get a binary mask.
+The current step is about to apply Sobel operator on "bird view", take the absolute value of result and use the threshold (found manually) to get a binary mask.
 
 | Bird view  | Absolute Sobel X |
 |---|---|
@@ -87,17 +83,17 @@ Test on parallel lines:
 
 ![alt text][bird_view_straight_lines]
 
-#### 4. Threshold S channel of "bird view" to generate binary mask
+#### 4. Threshold S channel of "bird view" to generate a binary mask
 
-At this step, goal is to extract useful info from the image channels. For that I converted image to HLS an used S channel with threshold.
+At this step, the goal is to extract useful info from the image channels. For that, I converted the image to HLS and used the S channel with the threshold.
 
 | Bird view  | Thresholded S channel |
 |---|---|
 | ![alt text][transformed_image]  | ![alt text][binary_s]  |
 
-#### 5. Erode and dilate "thresholded S channel mask" and "absolute sobel x mask" 
+#### 5. Erode and dilate "thresholded S channel mask" and "absolute Sobel x mask" 
 
-At this point we are combining (operator `OR`) "thresholded S channel mask" and "absolute sobel x mask". 
+At this point, we are combining (operator `OR`) "thresholded S channel mask" and "absolute Sobel x mask". 
 And to remove noise apply sequentially `cv2.erode` and `cv2.dilate` functions.
 
 | Absolute Sobel X | Thresholded S channel | Erode and dilate |
@@ -106,16 +102,16 @@ And to remove noise apply sequentially `cv2.erode` and `cv2.dilate` functions.
 
 #### 7. Mask transformed image
 
-Here apply mask from previous step to the "bird view".
+Here apply the mask from the previous step to the "bird view".
 
 | Bird view | Erode and dilate | Masked bird view |
 |---|---|---|
 | ![alt text][transformed_image]  | ![alt text][dilate]  | ![alt text][masked_transformed_image]  |
 
 
-#### 8. Using color filter to find a lanes
+#### 8. Using the color filter to find lines
 
-Convert image to HSV and use a color information to find a lines on the masked "bird view".
+Convert image to HSV and use color information to find lines on the masked "bird view".
 
 | Masked bird view | Filtered image |
 |---|---|
@@ -123,7 +119,7 @@ Convert image to HSV and use a color information to find a lines on the masked "
 
 
 
-#### 9. Create a binary image from the color filtered images
+#### 9. Create a binary image from the color-filtered images
 
 Color filtered image to gray and then to binary
 
@@ -132,14 +128,14 @@ Color filtered image to gray and then to binary
 | ![alt text][filtered_image]  | ![alt text][gray]  | ![alt text][binary] |
 
 
-#### 10. Create a binary image from the color filtered images
+#### 10. Create a binary image from the color-filtered images
 
-At this step I try to find a polynomial approximation (of degree 2).
+At this step, I try to find a polynomial approximation (of degree 2).
 
 - First I try using the histogram to find the origin of line and then using the sliding window, step by step discover all the point.
 Implemented in `LineDetector.fit_polynomial`.
 
-- In case if lines were detected at previous step, I try to reuse this info assuming that the new polynomial should have similar params.
+- In case if lines were detected at the previous step, I try to reuse this info assuming that the new polynomial should have similar params.
 Implemented in `LineDetector.search_around_poly`.
 
 
@@ -147,7 +143,7 @@ Implemented in `LineDetector.search_around_poly`.
 |---|---|
 | ![alt text][binary]  | ![alt text][out_image]  |
 
-#### 11. Draw lines, calculate curvature, distance to the line, draw lines, poly etc.
+#### 11. Draw lines, calculate curvature, distance to the line, draw lines, poly, etc.
 
 Distance and curvature calculation is in `line.py` class Line, methods `measure_curvature_real` and `measure_distance_real` 
 
@@ -175,26 +171,26 @@ I found this pipeline easy to understand and enough robust for the good conditio
 - good weather 
 - daylight 
 - lines are visible
-- road surface is in a good condition: no cracks or stains 
+- the road surface is in good condition: no cracks or stains 
 
 #### 2. When it is not good enough? 
 
 Cases when it will fail, for instance:
 
-- Not stable lighting condition: when car is driving on highway and then in the shade under the bridge or in the forest, when sun is blinking because of the trees.
-- Yellow or white things, not lines, are on the street, big enough that filter are not filtering them.
-- When road can't be aproximated with polinomial of 2 degree (very curved road).
-- When yellow ot white car will drive close enough.
+- Not stable lighting condition: when a car is driving on the highway and then in the shade under the bridge or in the forest when the sun is blinking because of the trees.
+- Yellow or white things, not lines, are on the street, big enough that filter is not filtering them.
+- When road can't be approximated with a polynomial of 2 degrees (very curved road).
+- When the yellow or white car will drive close enough.
 - etc.
 
  #### 3. How to improve?
  
- - Add `memory` to the line that it will average the polinomial params for the last "n" detection. 
- This will provide "smoothier" lines change and will provide direction if for whatever reason lines can't be detected.
+ - Add `memory` to the line that it will average the polynomial params for the last "n" detection. 
+ This will provide "smoother" lines change and will provide direction if for whatever reason lines can't be detected.
  
- - Add `reosonable` threshold for polynomial params, road is a subject from real worlds. it's curvature can't change for billion times in nanosecond. So we can skip outliers.
+ - Add a `reasonable` threshold for polynomial params, the road is a subject from real worlds. its curvature can't change for billion times in nanosecond. So we can skip outliers.
  
- - Use better camera, quicker brightnes adjustments and hight resolution image could help.
+ - Use a better camera, quicker brightness adjustments and high-resolution image could help.
  
  - Use `dynamic` threshold parameters adjustment, current pipeline depends on the lighting, mostly because of hardcoded threshold parameters. 
- It will be great to use different strategy of line detection for different situation, use error detection or jsut by looking on the average image brightnes.
+ It will be great to use a different strategy of line detection for different situation, use error detection or just by looking at the average image brightness.
