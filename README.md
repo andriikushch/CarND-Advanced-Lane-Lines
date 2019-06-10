@@ -178,7 +178,7 @@ Color filtered image to gray and then to binary
 | ![alt text][filtered_image]  | ![alt text][gray]  | ![alt text][binary] |
 
 
-#### 10. Create a binary image from the color-filtered images
+#### 10. Try to find the lines equation
 
 At this step, I try to find a polynomial approximation (of degree 2).
 
