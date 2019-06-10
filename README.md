@@ -29,6 +29,7 @@ The goals/steps of this project are the following:
 [result]: ./output_images/result.jpg "Result"
 [bird_view_straight_lines]: ./output_images/bird_view_straight_lines.jpg "Result"
 [project_video]: ./output_images/project_video.mp4 "Project video"
+[video_gif]: ./output_images/video.gif "Video Gif"
 
 
 ### Camera Calibration
@@ -231,7 +232,7 @@ def measure_distance_real(self, image):
 ---
 
 ### Pipeline (video)
-
+![alt text][video_gif]
 Here's a [link to my video result](./output_images/project_video.mp4)
 
 ---
