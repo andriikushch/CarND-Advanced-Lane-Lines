@@ -263,12 +263,12 @@ Cases when it will fail, for instance:
 
  #### 3. How to improve?
  
- - Add `memory` to the line that it will average the polynomial params for the last "n" detection. 
+ - Add "memory" to the line that it will average the polynomial params for the last "n" detections. 
  This will provide "smoother" lines change and will provide direction if for whatever reason lines can't be detected.
  
- - Add a `reasonable` threshold for polynomial params, the road is a subject from real worlds. its curvature can't change for billion times in nanosecond. So we can skip outliers.
+ - Add a "reasonable" threshold for polynomial params, the road is a subject from real worlds and its curvature can't change for billion times in nanosecond. So we can skip outliers.
  
  - Use a better camera, quicker brightness adjustments and high-resolution image could help.
  
- - Use `dynamic` threshold parameters adjustment, current pipeline depends on the lighting, mostly because of hardcoded threshold parameters. 
+ - Use "dynamic" threshold parameters adjustment, current pipeline depends on the lighting, mostly because of hardcoded threshold parameters. 
  It will be great to use a different strategy of line detection for different situation, use error detection or just by looking at the average image brightness.
