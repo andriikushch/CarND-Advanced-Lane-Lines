@@ -144,7 +144,7 @@ At this step, the goal is to extract useful info from the image channels. For th
 #### 5. Erode and dilate "thresholded S channel mask" and "absolute Sobel x mask" 
 
 At this point, we are combining (operator `OR`) "thresholded S channel mask" and "absolute Sobel x mask". 
-And to remove noise apply sequentially `cv2.erode` and `cv2.dilate` functions.
+And to make it more explicit apply sequentially `cv2.erode` and `cv2.dilate` functions.
 
 | Absolute Sobel X | Thresholded S channel | Erode and dilate |
 |---|---|---|
