@@ -232,6 +232,7 @@ def measure_distance_real(self, image):
 ---
 
 ### Pipeline (video)
+
 ![alt text][video_gif]
 
 Here's a [link to full video result](./output_images/project_video.mp4)
