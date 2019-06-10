@@ -232,8 +232,6 @@ def measure_distance_real(self, image):
 
 ### Pipeline (video)
 
-#### 1. Here is a result of using pipeline on the project video file:
-
 Here's a [link to my video result](./output_images/project_video.mp4)
 
 ---
