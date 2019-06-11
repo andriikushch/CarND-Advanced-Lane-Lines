@@ -12,6 +12,10 @@ class Line:
         self.allx = []
         # y values for detected line pixels
         self.ally = []
+        # meters per pixel in x dimension
+        self.xm_per_pix = 3.7 / 700
+        # meters per pixel in y dimension
+        self.ym_per_pix = 1 / 30
 
     def get_line_points(self):
         '''
@@ -45,14 +49,14 @@ class Line:
         '''
         Calculates the curvature of polynomial functions in meters.
         '''
-        ym_per_pix = 1 / 30  # meters per pixel in y dimension
-
         y_eval = image.shape[1]
+
+        polfit_real = np.polyfit(self.ally * self.ym_per_pix, self.allx * self.xm_per_pix, 2)
 
         # Calculation of R_curve (radius of curvature)
         curverad = ((1 + (
-                    2 * self.current_fit[0] * y_eval * ym_per_pix + self.current_fit[1]) ** 2) ** 1.5) / np.absolute(
-            2 * self.current_fit[0])
+                    2 * polfit_real[0] * y_eval * self.ym_per_pix + polfit_real[1]) ** 2) ** 1.5) / np.absolute(
+            2 * polfit_real[0])
 
         return curverad
 
@@ -60,8 +64,7 @@ class Line:
         '''
         Calculates distance to the line
         '''
-        xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
         f = np.poly1d(self.current_fit)
         middle = image.shape[1] / 2
 
-        return abs(middle - f(image.shape[1])) * xm_per_pix
+        return abs(middle - f(image.shape[1])) * self.xm_per_pix
