@@ -125,11 +125,7 @@ class LineDetector:
         lane_width = self.left_line_object.measure_distance_real(out_image) + self.right_line_object.measure_distance_real(out_image)
         bigger_distance = max([self.left_line_object.measure_distance_real(out_image), self.right_line_object.measure_distance_real(out_image)])
 
-        text = "CAR DISTANCE TO THE CENTER : {:10.2f} m lane width {:10.2f}".format(
-            abs(bigger_distance-lane_width/2),
-            lane_width
-        )
-
+        text = "CAR DISTANCE TO THE CENTER : {:10.2f} m".format(abs(bigger_distance-lane_width/2))
         font = cv2.FONT_HERSHEY_SIMPLEX
         cv2.putText(img, text, (10, 40), font, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
         text = "Found by {0}".format(self.found_by)

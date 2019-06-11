@@ -16,6 +16,8 @@ class Line:
         self.xm_per_pix = 3.7 / 700
         # meters per pixel in y dimension
         self.ym_per_pix = 1 / 30
+        # previous fit real for smoothing distance from center calculation
+        self.prev_polfit = None
 
     def get_line_points(self):
         '''
@@ -64,7 +66,24 @@ class Line:
         '''
         Calculates distance to the line
         '''
-        f = np.poly1d(self.current_fit)
+        polfit = self.current_fit
+
+        if self.prev_polfit is None:
+            self.prev_polfit = self.current_fit
+        else:
+            polfit = self.smooth(self.prev_polfit, self.current_fit)
+
+        f = np.poly1d(polfit)
         middle = image.shape[1] / 2
 
         return abs(middle - f(image.shape[1])) * self.xm_per_pix
+
+    def smooth(self, prev, curr, coeficient=0.4):
+        '''
+         exponential smoothing
+        :param prev: old value
+        :param curr: new value
+        :param coeficient: smoothing coef.
+        :return:
+        '''
+        return curr * coeficient + prev * (1 - coeficient)
